@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roomba Robot State</title>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            max-width: 400px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .value {
+            float: right;
+        }
+
+        .ok {
+            color: green;
+        }
+
+        .warn {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Roomba – Live State</h1>
+
+    <div class="card">
+        <div class="row">
+            <span class="label">Battery Voltage:</span>
+            <span class="value" id="batteryVoltage">---</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Battery Temperature:</span>
+            <span class="value" id="batteryTemp">---</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Bump Detected:</span>
+            <span class="value" id="bumpStatus">---</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Last Update:</span>
+            <span class="value" id="lastUpdate">---</span>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = "https://localhost:7201/robot/state";
+    // ⬆️ change host/port if needed
+
+    function refreshState() {
+        $.ajax({
+            url: API_URL,
+            method: "GET",
+            success: function (data) {
+                $("#batteryVoltage").text(data.batteryVoltageMv + " mV");
+                $("#batteryTemp").text(data.batteryTemperatureC + " °C");
+
+                if (data.bumpDetected) {
+                    $("#bumpStatus")
+                        .text("YES")
+                        .removeClass("ok")
+                        .addClass("warn");
+                } else {
+                    $("#bumpStatus")
+                        .text("NO")
+                        .removeClass("warn")
+                        .addClass("ok");
+                }
+
+                $("#lastUpdate").text(
+                    new Date(data.lastUpdatedUtc).toLocaleString()
+                );
+            },
+            error: function () {
+                console.error("Failed to fetch robot state");
+            }
+        });
+    }
+
+    // initial load
+    refreshState();
+
+    // refresh every 5 seconds
+    setInterval(refreshState, 5000);
+    </script>
+
+</body>
+</html>

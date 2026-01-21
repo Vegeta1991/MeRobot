@@ -1,7 +1,26 @@
+using MeRobot.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<RobotService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<RobotService>());
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 
 var app = builder.Build();
 
@@ -20,6 +39,10 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.MapControllers();
+
 app.MapRazorPages();
+
+app.UseCors();
 
 app.Run();
