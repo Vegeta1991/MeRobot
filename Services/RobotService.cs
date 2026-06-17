@@ -71,7 +71,7 @@ namespace MeRobot.Services
             catch (Exception ex)
             {
                 _logger.LogError("Failed to open serial port" + ex.Message);
-                return;//Jezeöli port sie nie otworzy to przerywamy
+                return;//Jezeli port sie nie otworzy to przerywamy
             }
             while (!ct.IsCancellationRequested)
             {
@@ -79,6 +79,7 @@ namespace MeRobot.Services
                 {
                     int bytesRead = _serialPort.Read(packetBuffer, 0, packetBuffer.Length);//od 0 do 26 bajtow
                     //czytamy dane z portu do bufora
+                   
                     if (bytesRead == packetBuffer.Length)//jesli przeczytano 26 bajtow to mamy pelny pakiet
                     {
                         lock (_stateLock)//blokujemy stan robota zeby nikt inny nie zmienial go w tym czasie
@@ -89,8 +90,8 @@ namespace MeRobot.Services
                             _state.LastUpdatedUtc = DateTime.UtcNow;//aktualizujemy czas ostatniej aktualizacji stanu
                         }
                     }
-                    _logger.LogDebug(
-                        "Sensor updated : Voltage={Voltage}mV, Temp={Temp}C, Bump={Bump}",
+                    _logger.LogDebug(//Wypisujemy odczytane dane do logów
+                        "Sensor updated : Voltage={Voltage}mV, Temp={Temp}C, Bump={Bump}",//wazna kolejnosc argumentow
                         _state.BatteryVoltageMv,
                         _state.BatteryTemperatureC,
                         _state.BumpDetected
